@@ -3,14 +3,10 @@ function! compl_local_filename#start() abort
     return "\<C-x>\<C-f>"
   endif
   let s:saved_cwd = getcwd()
-  silent execute printf('lcd %s', fnameescape(expand('%:p:h')))
+  silent! execute printf('cd %s', fnameescape(expand('%:p:h')))
   augroup compl_local_filename_internal
     autocmd! * <buffer>
-    autocmd CompleteDone <buffer>
-          \ augroup compl_local_filename_internal |
-          \   autocmd! * <buffer> |
-          \   autocmd InsertLeave,CursorMovedI <buffer> call s:reset() |
-          \ augroup END
+    autocmd CompleteDone <buffer> ++once call timer_start(0, { -> s:reset() })
   augroup END
   return "\<C-x>\<C-f>"
 endfunction
@@ -19,9 +15,6 @@ function! s:reset() abort
   if !exists('s:saved_cwd')
     return
   endif
-  silent execute printf('lcd %s', fnameescape(s:saved_cwd))
-  silent unlet s:saved_cwd
-  augroup compl_local_filename_internal
-    autocmd! * <buffer>
-  augroup END
+  silent! execute printf('cd %s', fnameescape(s:saved_cwd))
+  silent! unlet s:saved_cwd
 endfunction
