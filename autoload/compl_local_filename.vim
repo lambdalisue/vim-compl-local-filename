@@ -1,5 +1,5 @@
 function! compl_local_filename#start() abort
-  if exists('s:saved_cwd')
+  if exists('s:saved_cwd') || s:is_disabled()
     return "\<C-x>\<C-f>"
   endif
   let s:saved_cwd = getcwd()
@@ -17,4 +17,8 @@ function! s:reset() abort
   endif
   silent! execute printf('cd %s', fnameescape(s:saved_cwd))
   silent! unlet s:saved_cwd
+endfunction
+
+function! s:is_disabled() abort
+  return get(b:, 'compl_local_filename_disable', 0)
 endfunction
